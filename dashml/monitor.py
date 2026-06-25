@@ -1,0 +1,89 @@
+from __future__ import annotations
+from typing import Optional
+
+
+class ModelMonitor:
+    """
+    Monitor ML model performance and data drift on Databricks.
+
+    Usage::
+        monitor = ModelMonitor(model_name="customer_churn", model_version=3)
+        monitor.set_baseline(table="catalog.schema.training_data")
+        monitor.set_production(table="catalog.schema.inference_logs")
+        report = monitor.run()
+    """
+
+    def __init__(self, model_name: str, model_version: int = None):
+        self.model_name = model_name
+        self.model_version = model_version
+        self._baseline_df = None
+        self._production_df = None
+        self._target_col: Optional[str] = None
+        self._prediction_col: Optional[str] = None
+        self._feature_cols: list[str] = []
+
+    def set_baseline(self, df=None, table: str = None):
+        self._baseline_df = self._load(df, table)
+        return self
+
+    def set_production(self, df=None, table: str = None):
+        self._production_df = self._load(df, table)
+        return self
+
+    def set_target(self, column: str):
+        self._target_col = column
+        return self
+
+    def set_prediction(self, column: str):
+        self._prediction_col = column
+        return self
+
+    def set_features(self, columns: list[str]):
+        self._feature_cols = columns
+        return self
+
+    def _load(self, df, table):
+        if df is not None:
+            return df
+        from pyspark.sql import SparkSession
+        return SparkSession.getActiveSession().table(table)
+
+    def run(self, save_to: Optional[str] = None) -> "MonitorReport":
+        from dashml.metrics import compute_drift, compute_performance
+        results = {}
+        if self._baseline_df and self._production_df:
+            results["drift"] = compute_drift(self._baseline_df, self._production_df,
+                                             self._feature_cols)
+        if self._target_col and self._prediction_col and self._production_df:
+            results["performance"] = compute_performance(self._production_df,
+                                                         self._target_col,
+                                                         self._prediction_col)
+        report = MonitorReport(self.model_name, self.model_version, results)
+        if save_to:
+            report.save(save_to)
+        return report
+
+
+class MonitorReport:
+    def __init__(self, model_name: str, model_version, results: dict):
+        self.model_name = model_name
+        self.model_version = model_version
+        self.results = results
+
+    def display(self):
+        print(f"Model: {self.model_name} v{self.model_version}")
+        for section, data in self.results.items():
+            print(f"\n── {section.upper()} ──")
+            if isinstance(data, dict):
+                for k, v in data.items():
+                    print(f"  {k}: {v}")
+
+    def save(self, delta_table: str):
+        from pyspark.sql import SparkSession, functions as F
+        spark = SparkSession.getActiveSession()
+        rows = [{"model_name": self.model_name, "model_version": str(self.model_version),
+                 "section": s, "metric": k, "value": str(v)}
+                for s, data in self.results.items()
+                for k, v in (data.items() if isinstance(data, dict) else {s: data}.items())]
+        spark.createDataFrame(rows).withColumn("run_ts", F.current_timestamp()) \
+             .write.format("delta").mode("append").saveAsTable(delta_table)
