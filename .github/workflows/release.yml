@@ -124,7 +124,7 @@ jobs:
 
           ### Install
           \`\`\`bash
-          pip install dash-ml==${VERSION}
+          pip install dash-mlops==${VERSION}
           \`\`\`
 
           ### Quick Start (Databricks notebook)
@@ -168,7 +168,7 @@ jobs:
       id-token: write   # required for OIDC trusted publisher
     environment:
       name: pypi
-      url: https://pypi.org/project/dash-ml
+      url: https://pypi.org/project/dash-mlops
     steps:
       - name: Download dist
         uses: actions/download-artifact@v4
@@ -234,7 +234,7 @@ jobs:
             "provider": "dash-libs",
             "documentation_url": "https://github.com/dash-libs/dash-ml",
             "source_url": "https://github.com/dash-libs/dash-ml",
-            "pypi_package": "dash-ml==${VERSION}"
+            "pypi_package": "dash-mlops==${VERSION}"
           }
           LEOF
 

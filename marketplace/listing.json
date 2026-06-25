@@ -1,6 +1,6 @@
 {
   "listing_name": "DashML''Monitoring — ML Monitoring",
-  "pypi_package": "dash-ml",
+  "pypi_package": "dash-mlops",
   "short_description": "Monitor ML model drift and performance in production — no Spark expertise required.",
   "long_description": "Part of the Dashlibs suite for Databricks. Provides an ipywidgets notebook UI plus a Python API. Install with %pip install dash-ml and call dashml.launch() to open the interactive wizard.",
   "categories": ["Data Engineering", "Developer Tools"],
@@ -9,5 +9,5 @@
   "documentation_url": "https://github.com/dash-libs/dash-ml/tree/main/docs/api",
   "license": "Apache-2.0",
   "supported_platforms": ["Databricks Runtime 12.x+"],
-  "install_instructions": "%pip install dash-ml"
+  "install_instructions": "%pip install dash-mlops"
 }

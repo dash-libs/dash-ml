@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "dash-ml"
+name = "dash-mlops"
 version = "0.1.0"
 description = "ML model monitoring and management for Databricks — with a built-in notebook UI"
 readme = "README.md"
