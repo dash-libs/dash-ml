@@ -129,7 +129,7 @@ jobs:
 
           ### Quick Start (Databricks notebook)
           \`\`\`python
-          %pip install dash-ml==${VERSION}
+          %pip install dash-mlops==${VERSION}
           import dashml
           dashml.launch()
           \`\`\`
@@ -208,11 +208,11 @@ jobs:
           cat > marketplace-bundle/files/DashML — ML Monitoring_Quickstart.py << NBEOF
           # Databricks notebook source
           # MAGIC %md
-          # MAGIC # DashML — ML Monitoring v${VERSION} — Data Quality for Databricks
+          # MAGIC # DashML — ML Monitoring v${VERSION} for Databricks
           # MAGIC Install and launch the interactive UI.
 
           # COMMAND ----------
-          # MAGIC %pip install dash-ml==${VERSION}
+          # MAGIC %pip install dash-mlops==${VERSION}
 
           # COMMAND ----------
           dbutils.library.restartPython()
@@ -225,12 +225,12 @@ jobs:
           # Generate listing metadata
           cat > marketplace-bundle/listing.json << LEOF
           {
-            "listing_name": "DashML — ML Monitoring — Data Quality",
+            "listing_name": "DashML — ML Monitoring",
             "version": "${VERSION}",
             "short_description": "Monitor ML model drift and performance on Databricks",
-            "long_description": "DashML — ML Monitoring provides an ipywidgets UI inside Databricks notebooks to run data quality checks on DataFrames, Unity Catalog tables, and SQL queries. No coding required for business users.",
+            "long_description": "DashML — ML Monitoring provides an ipywidgets UI inside Databricks notebooks to monitor ML model drift and performance. No coding required for business users.",
             "categories": ["Machine Learning,MLOps"],
-            "tags": ["data-quality", "databricks", "unity-catalog", "pyspark"],
+            "tags": ["mlops", "model-monitoring", "databricks", "unity-catalog", "pyspark"],
             "provider": "dash-libs",
             "documentation_url": "https://github.com/dash-libs/dash-ml",
             "source_url": "https://github.com/dash-libs/dash-ml",
