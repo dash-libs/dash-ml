@@ -14,7 +14,7 @@ class RunTracker:
         self.experiment_path = experiment_path
         self._own_run = False
 
-    def __enter__(self) -> "RunTracker":
+    def __enter__(self) -> RunTracker:
         import mlflow
 
         mlflow.set_registry_uri("databricks-uc")
@@ -43,7 +43,7 @@ class RunTracker:
         for key, value in metrics.items():
             try:
                 mlflow.log_metric(key, float(value))
-            except (TypeError, ValueError):
+            except (TypeError, ValueError):  # noqa: PERF203 — per-item fallback, not a hot loop (a handful of metrics per run)
                 mlflow.log_param(f"metric_{key}", str(value))
 
     def log_text(self, text: str, artifact_path: str) -> None:

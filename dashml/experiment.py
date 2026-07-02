@@ -51,14 +51,19 @@ def format_comparison_table(runs: list[dict], metrics_to_show: list[str] | None 
         return "No runs found."
 
     columns = metrics_to_show or sorted({k for r in runs for k in r["metrics"]})
-    header = ["run_name"] + columns
-    rows = [[r["run_name"] or r["run_id"][:8]] + [f"{r['metrics'].get(c, '—'):.4f}" if isinstance(r["metrics"].get(c), (int, float)) else "—" for c in columns] for r in runs]
+    header = ["run_name", *columns]
+    rows = [
+        [r["run_name"] or r["run_id"][:8]]
+        + [f"{r['metrics'].get(c, '—'):.4f}" if isinstance(r["metrics"].get(c), (int, float)) else "—" for c in columns]
+        for r in runs
+    ]
 
     widths = [max(len(str(x)) for x in [header[i], *[row[i] for row in rows]]) for i in range(len(header))]
-    lines = [" | ".join(h.ljust(w) for h, w in zip(header, widths))]
-    lines.append("-+-".join("-" * w for w in widths))
-    for row in rows:
-        lines.append(" | ".join(str(c).ljust(w) for c, w in zip(row, widths)))
+    lines = [
+        " | ".join(h.ljust(w) for h, w in zip(header, widths)),
+        "-+-".join("-" * w for w in widths),
+        *(" | ".join(str(c).ljust(w) for c, w in zip(row, widths)) for row in rows),
+    ]
     return "\n".join(lines)
 
 

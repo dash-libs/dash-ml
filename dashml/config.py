@@ -6,13 +6,12 @@ notebook widget.
 """
 from __future__ import annotations
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
 class ModelSpec:
     type: str = "classifier"  # classifier | regressor | clustering | knn | anomaly
-    target_column: Optional[str] = None
+    target_column: str | None = None
     feature_columns: list[str] = field(default_factory=list)
 
     @property
@@ -30,7 +29,7 @@ class DerivedColumn:
 @dataclass
 class CleaningSpec:
     standardize_column_names: bool = True
-    dedup_by: Optional[str] = None
+    dedup_by: str | None = None
     drop_nulls_in: list[str] = field(default_factory=list)
     date_columns: list[str] = field(default_factory=list)
     categorical_mappings: dict[str, dict] = field(default_factory=dict)
@@ -51,7 +50,7 @@ class MonitoringSpec:
     drift_threshold: float = 0.15  # PSI: >0.25 significant, 0.10-0.25 moderate
     row_count_delta_threshold: float = 0.05
     auto_retrain: bool = False
-    retrain_job_name: Optional[str] = None
+    retrain_job_name: str | None = None
 
 
 @dataclass

@@ -77,8 +77,8 @@ def compute_prediction_shift(expected, actual) -> tuple[float, float]:
 
 
 def check_feature_drift(
-    baseline: dict[str, "np.ndarray | list"],
-    production: dict[str, "np.ndarray | list"],
+    baseline: dict[str, np.ndarray | list],
+    production: dict[str, np.ndarray | list],
     threshold: float = 0.15,
 ) -> dict[str, dict]:
     """Per-column PSI drift check. baseline/production: {column: values}."""

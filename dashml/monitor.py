@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Optional
 
 
 class ModelMonitor:
@@ -13,22 +12,22 @@ class ModelMonitor:
         report = monitor.run()
     """
 
-    def __init__(self, model_name: str, model_version: int = None, drift_threshold: float = 0.15):
+    def __init__(self, model_name: str, model_version: int | None = None, drift_threshold: float = 0.15):
         self.model_name = model_name
         self.model_version = model_version
         self.drift_threshold = drift_threshold
         self._baseline_df = None
         self._production_df = None
-        self._target_col: Optional[str] = None
-        self._prediction_col: Optional[str] = None
+        self._target_col: str | None = None
+        self._prediction_col: str | None = None
         self._feature_cols: list[str] = []
-        self._retrain_job_name: Optional[str] = None
+        self._retrain_job_name: str | None = None
 
-    def set_baseline(self, df=None, table: str = None):
+    def set_baseline(self, df=None, table: str | None = None):
         self._baseline_df = self._load(df, table)
         return self
 
-    def set_production(self, df=None, table: str = None):
+    def set_production(self, df=None, table: str | None = None):
         self._production_df = self._load(df, table)
         return self
 
@@ -55,7 +54,7 @@ class ModelMonitor:
         from pyspark.sql import SparkSession
         return SparkSession.getActiveSession().table(table)
 
-    def run(self, save_to: Optional[str] = None) -> "MonitorReport":
+    def run(self, save_to: str | None = None) -> MonitorReport:
         from dashml.metrics import compute_drift, compute_performance, compute_prediction_drift
 
         results = {}

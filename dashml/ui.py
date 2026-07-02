@@ -7,7 +7,7 @@ def launch():
         import ipywidgets as w
         from IPython.display import display
     except ImportError:
-        raise RuntimeError("ipywidgets required. Run: %pip install ipywidgets")
+        raise RuntimeError("ipywidgets required. Run: %pip install ipywidgets") from None
 
     import dashui
 

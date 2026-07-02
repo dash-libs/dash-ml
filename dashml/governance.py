@@ -58,7 +58,7 @@ def build_governance_artifacts(
                 "version": version,
                 "state": "pending",
                 "required_approvers": required_approvers or [],
-                "checklist": {item: False for item in (checklist or [])},
+                "checklist": dict.fromkeys(checklist or [], False),
             },
             indent=2,
         ),
