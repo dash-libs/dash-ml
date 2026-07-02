@@ -1,5 +1,4 @@
 from __future__ import annotations
-from pyspark.sql import functions as F
 
 
 def compute_drift(baseline_df, production_df, feature_cols: list[str]) -> dict:
@@ -34,6 +33,7 @@ def _psi(base_df, prod_df, col: str, bins: int = 10) -> float:
 def compute_performance(df, target_col: str, pred_col: str) -> dict:
     """Compute accuracy and error metrics."""
     from pyspark.sql import functions as F
+
     total = df.count()
     correct = df.filter(F.col(target_col) == F.col(pred_col)).count()
     accuracy = correct / total if total > 0 else 0.0
