@@ -8,7 +8,7 @@ from dashml.preprocessing import clean_dataframe
 from dashml.registry import RunTracker, promote_challenger, register_model
 from dashml.ui import launch
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __all__ = [
     "CleaningSpec",
     "DerivedColumn",
