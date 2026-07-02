@@ -13,14 +13,16 @@ class ModelMonitor:
         report = monitor.run()
     """
 
-    def __init__(self, model_name: str, model_version: int = None):
+    def __init__(self, model_name: str, model_version: int = None, drift_threshold: float = 0.15):
         self.model_name = model_name
         self.model_version = model_version
+        self.drift_threshold = drift_threshold
         self._baseline_df = None
         self._production_df = None
         self._target_col: Optional[str] = None
         self._prediction_col: Optional[str] = None
         self._feature_cols: list[str] = []
+        self._retrain_job_name: Optional[str] = None
 
     def set_baseline(self, df=None, table: str = None):
         self._baseline_df = self._load(df, table)
@@ -42,6 +44,11 @@ class ModelMonitor:
         self._feature_cols = columns
         return self
 
+    def set_auto_retrain(self, job_name: str):
+        """Trigger this Databricks job by name if drift exceeds the threshold on run()."""
+        self._retrain_job_name = job_name
+        return self
+
     def _load(self, df, table):
         if df is not None:
             return df
@@ -49,15 +56,28 @@ class ModelMonitor:
         return SparkSession.getActiveSession().table(table)
 
     def run(self, save_to: Optional[str] = None) -> "MonitorReport":
-        from dashml.metrics import compute_drift, compute_performance
+        from dashml.metrics import compute_drift, compute_performance, compute_prediction_drift
+
         results = {}
-        if self._baseline_df and self._production_df:
-            results["drift"] = compute_drift(self._baseline_df, self._production_df,
-                                             self._feature_cols)
-        if self._target_col and self._prediction_col and self._production_df:
-            results["performance"] = compute_performance(self._production_df,
-                                                         self._target_col,
-                                                         self._prediction_col)
+        if self._baseline_df is not None and self._production_df is not None:
+            if self._feature_cols:
+                results["drift"] = compute_drift(
+                    self._baseline_df, self._production_df, self._feature_cols, threshold=self.drift_threshold
+                )
+            if self._prediction_col:
+                results["prediction_drift"] = compute_prediction_drift(
+                    self._baseline_df, self._production_df, self._prediction_col
+                )
+        if self._target_col and self._prediction_col and self._production_df is not None:
+            results["performance"] = compute_performance(
+                self._production_df, self._target_col, self._prediction_col
+            )
+
+        if self._retrain_job_name and any(f.get("drifted") for f in results.get("drift", {}).values()):
+            from dashml.retraining import trigger_job
+
+            results["retraining"] = {"job": self._retrain_job_name, "status": trigger_job(self._retrain_job_name)}
+
         report = MonitorReport(self.model_name, self.model_version, results)
         if save_to:
             report.save(save_to)
